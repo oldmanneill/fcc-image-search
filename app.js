@@ -4,7 +4,7 @@ var mongoose = require("mongoose"),
     app = express(),
     methodOverride = require("method-override");
 
-mongoose.connect('mongodb://localhost/urlshorts');
+mongoose.connect('mongodb://oldmanneill:gohomedrunk@ds235778.mlab.com:35778/url-shortener');
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
