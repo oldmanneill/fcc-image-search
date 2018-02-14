@@ -1,9 +1,15 @@
 <h1>
-    FreeCodeCamp API Basejump: URL Shortener Microservice
+   ---- FreeCodeCamp Basejump: Image Search Abstraction Layer by John Neill ----
 </h1>
-<form action="/urlShortener" method="POST">
-    <label> Type in a URL that you would like to have shortened: </label>
-    <input type="text" name="url[longUrl]" placeholder="URL">
+<form action="/apiSearch" method="POST">
+    <label> What images would you like to search for? </label>
+    <input type="text" name="search[image]" placeholder="image search">
+    <label> What page number shall we start with? </label>
+    <input type="text" name="search[page]" placeholder="page number">
     <input type="submit">
 </form>
-</div>
+
+<form action="/apiSearch" method="POST">
+    <input type="submit" value="click here to view recent searches">
+    </form>
+
