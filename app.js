@@ -56,6 +56,25 @@ app.get('/apiSearch', function(req, res) {
 //create route
 app.post("/apiSearch", function(req, res) {
     if (Object.keys(req.body).length === 0 && req.body.constructor === Object) { //this checks to see if the see history button is empty
+        Api.find({}, function(err, apis) {
+            if (err) {
+                console.log('error');
+
+            }
+            else {
+                var arr = [];
+               // var database = JSON.stringify(apis);
+              //  console.log(apis.length);
+                apis.forEach(function(results) {
+                    arr.push(results.created);
+                })
+                arr.sort().reverse;
+                console.log(arr);
+                res.render('history', { apis: apis });
+                // console.log(apis);
+            }
+        });
+
         console.log('they want to see the last few searches');
     }
     else {
