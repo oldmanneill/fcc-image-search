@@ -5,8 +5,8 @@ var mongoose = require("mongoose"),
     methodOverride = require("method-override"),
     request = require('request');
 
-//mongoose.connect('mongodb://oldmanneill:gohomedrunk@ds235778.mlab.com:35778/url-shortener');
-mongoose.connect('mongodb://localhost/apizzz');
+mongoose.connect('mongodb://oldmanneill:whatthebogus@ds235778.mlab.com:35778/image_search');
+//mongoose.connect('mongodb://localhost/apizzz');
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,7 +40,7 @@ app.post("/apiSearch", function(req, res) {
         });
     }
     else {
-        if (!Number(req.body.search.page)) {
+        if (!Number(req.body.search.page)) {//check for someone not entering a page starting number
             var startingPoint = 1;
         }
         else {
