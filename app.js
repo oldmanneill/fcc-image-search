@@ -12,19 +12,6 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
-/*request('https://www.googleapis.com/customsearch/v1?key=AIzaSyD8l4vk5uqWWEPch0BQfMOqyR3RDeuCrb4&cx=012686465476344779243:leo8px30e1a&searchType:image&q=pigs', function (error, response, body) {
-    if(error){
-        console.log('something went wrong!');
-        console.log(error);
-    } else{
-        if(response.statusCode == 200){
-            var parsedData = JSON.parse(body);
-            console.log(parsedData.items[0].pagemap.cse_image[0].src);
-            console.log(parsedData.items[0].snippet);
-            console.log(parsedData.items[0].link);
-        }
-    }
-}); */
 
 var searchSchema = new mongoose.Schema({
     image: String,
@@ -40,46 +27,25 @@ app.get('/apiSearch', function(req, res) {
     res.render('index');
 });
 
-/*app.get('/:shortUrl?', function(req, res) {
-    var name = req.params.shortUrl;
-    Url.findById(name, function(err, foundUrl) {
-        if (err) {
-            res.redirect("/urlShortener");
-        }
-        else {
-            var longUrl = foundUrl.longUrl;
-            res.redirect(longUrl);
-        }
-    });
-});*/
-
 //create route
 app.post("/apiSearch", function(req, res) {
     if (Object.keys(req.body).length === 0 && req.body.constructor === Object) { //this checks to see if the see history button is empty
-        Api.find({}, function(err, apis) {
+        Api.find({}).select("created image _id").sort({ created: -1 }).limit(10).exec((err, apis) => { //retrieves the last 10 searches from database
             if (err) {
                 console.log('error');
-
             }
             else {
-                var arr = [];
-               // var database = JSON.stringify(apis);
-              //  console.log(apis.length);
-                apis.forEach(function(results) {
-                    arr.push(results.created);
-                })
-                arr.sort().reverse;
-                console.log(arr);
                 res.render('history', { apis: apis });
-                // console.log(apis);
             }
         });
-
-        console.log('they want to see the last few searches');
     }
     else {
-
-        var startingPoint = Number(req.body.search.page) * 10;
+        if (!Number(req.body.search.page)) {
+            var startingPoint = 1;
+        }
+        else {
+            var startingPoint = (Number(req.body.search.page) * 10) - 9;
+        }
         var searchTerm = req.body.search.image;
         var googleSearch = "https://www.googleapis.com/customsearch/v1?key=AIzaSyD8l4vk5uqWWEPch0BQfMOqyR3RDeuCrb4&cx=012686465476344779243:leo8px30e1a&searchType:image&q=" + searchTerm + "&start=" + startingPoint;
 
@@ -90,13 +56,18 @@ app.post("/apiSearch", function(req, res) {
             }
             else {
                 if (response.statusCode == 200) {
+                    // console.log(body.queries);
                     var parsedSearchData = JSON.parse(body);
-                    //console.log('here is the data: '+ JSON.stringify(parsedSearchData));
                     var arr = [];
-                    for (var i = 0; i < parsedSearchData.items.length; i++) {
-                        if (parsedSearchData.items[i].pagemap.cse_image) {
-                            arr.push({ image: parsedSearchData.items[i].pagemap.cse_image[0].src, snippet: parsedSearchData.items[i].snippet, link: parsedSearchData.items[i].link });
+                    if (parsedSearchData.items) {
+                        for (var i = 0; i < parsedSearchData.items.length; i++) {
+                            if (parsedSearchData.items[i].pagemap.cse_image) { //checks for the case in which no image is stored...if there was no image, the result would have thrown an error.
+                                arr.push({ image: parsedSearchData.items[i].pagemap.cse_image[0].src, snippet: parsedSearchData.items[i].snippet, link: parsedSearchData.items[i].link });
+                            }
                         }
+                    }
+                    else {
+                        arr.push("no results found!");
                     }
                     Api.create(req.body.search, function(err, newSearch) {
                         if (err) {
@@ -111,7 +82,6 @@ app.post("/apiSearch", function(req, res) {
             }
         });
     }
-
 });
 
 app.listen(process.env.PORT, process.env.IP, function() {
